@@ -1,0 +1,13 @@
+h1,h2{
+    text-align: center;
+}
+p,ol{
+    margin-left: 20%;
+    margin-right: 20%;
+}
+.intro{
+    text-align: center;
+}
+h3,h4,h5,h6{
+    margin-left: 20%;
+}
