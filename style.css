@@ -1,3 +1,7 @@
+body{
+    color: white;
+    background-color: rgb(15, 16, 47);
+}
 h1,h2{
     text-align: center;
 }
@@ -10,4 +14,11 @@ p,ol{
 }
 h3,h4,h5,h6{
     margin-left: 20%;
+}
+a:link,a:active{
+    color: rgb(44, 202, 255);
+}
+a:visited,a:hover{
+    color: white;
+
 }
