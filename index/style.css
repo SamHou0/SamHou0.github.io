@@ -1,0 +1,15 @@
+body{
+    color: white;
+    background-color: rgb(15, 16, 47);
+    text-align: center;
+}
+a:link,a:active,a:visited,a:hover{
+    color: white;
+}
+ul,ol{
+    margin-left: 40%;
+    text-align: left;
+}
+.hidden{
+    color: rgb(15, 16, 47)
+}
