@@ -1,35 +1,58 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
-    <head>
-        <title>SamHou's Site</title>
-        <link href="style.css" rel="stylesheet">
-        <link href="img\SamHou.png" rel="icon" type="image/png">
-    </head>
-    <body>
-        <h1>SamHou's site</h1>
-        <h2>这里是SamHou的网站主页</h2>
-        <h3>关于我</h3>
-        <p>是一个来自上海的高中生，喜欢技术，也爱折腾</p>
-        <p>想知道我有哪些公开的作品？看看这个：<a href="index/">茵蒂克丝</a></p>
-        <h3>博客</h3>
-        <p>博客是一个分享知识、技术的地方，也有一些非技术性的内容以及心得</p>
-        <p><a href="https://blog.samhou.top/">链接</a></p>
-        <h3>参与的项目</h3>
-        <p><img src="https://stats.github.samhou.top/api?username=samhou0&theme=tokyonight"/></p>
-        <h4>TimeControl</h4>
-        <p>这是个计算机时间管理程序，可以在windows上运行，<a href="https://github.com/SamHou0/ComputerTimeControl">链接</a></p>
-        <h3>语言</h3>
-        <ol>
-            <li>C#</li>
-            <li>C++</li>
-            <li>html</li>
-            <li>python</li>
-        </ol>
-        <h4>联系</h4>
-        <ol>
-            <li>Email: <a href="mailto:samhou0@outlook.com">samhou0@outlook.com</a>，支持OpenPGP加密，下载<a href="resource\public_key.asc">公钥</a></li>
-            <li><a href="https://github.com/SamHou0">GitHub</a></li>
-            <li><a href="https://space.bilibili.com/456964528">B站私信</a></li>
-        </ol>
-    </body>
+
+<head>
+    <meta charset="utf-8">
+    <title>SamHou's Site</title>
+    <link href="style.css" rel="stylesheet">
+    <link href="img\SamHou.png" rel="icon" type="image/png">
+</head>
+
+<body>
+    <h1>SamHou's site</h1>
+    <h2>这里是SamHou的网站主页</h2>
+    <h3>关于我</h3>
+    <p>是一个来自上海的高中生，喜欢技术，也爱折腾</p>
+    <p>想知道我有哪些公开的作品？看看这个：<a href="index/">茵蒂克丝</a></p>
+    <h3>博客</h3>
+    <p>博客是一个分享知识、技术的地方，也有一些非技术性的内容以及心得</p>
+    <p><a href="https://blog.samhou.top/">链接</a></p>
+    <h3>参与的项目</h3>
+    <p><img src="https://stats.github.samhou.top/api?username=samhou0&theme=tokyonight" /></p>
+    <h4>TimeControl</h4>
+    <p>这是个计算机时间管理程序，可以在windows上运行，<a href="https://github.com/SamHou0/ComputerTimeControl">链接</a></p>
+    <h3>语言</h3>
+    <ol>
+        <li>C#</li>
+        <li>C++</li>
+        <li>html</li>
+        <li>python</li>
+    </ol>
+    <h4>联系</h4>
+    <ol>
+        <li>Email: <a href="mailto:samhou0@outlook.com">samhou0@outlook.com</a>，支持OpenPGP加密，下载<a
+                href="resource\public_key.asc">公钥</a></li>
+        <li><a href="https://github.com/SamHou0">GitHub</a></li>
+        <li><a href="https://space.bilibili.com/456964528">B站私信</a></li>
+    </ol>
+</body>
+<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+<script src="https://cdn.jsdelivr.net/combine/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js,npm/pixi.js@6.5.2/dist/browser/pixi.min.js,npm/pixi-live2d-display/dist/index.min.js,gh/Weidows-projects/Live2dLoader/dist/Live2dLoader.min.js"></script>
+<script>addEventListener("DOMContentLoaded", function () {
+    let models = [
+              {
+                width: 400,
+                height: 400,
+                right: "0px",
+                bottom: "0px",
+                role: "https://live2d.samhou.top/Sorakado_Ao/SorakadoAO.model3.json",
+                background: "",
+                opacity: 0.8,
+                mobile: false,
+                draggable: false,
+                scale:0.3
+              },
+    ];
+    new Live2dLoader(models);
+  });</script>
 </html>
