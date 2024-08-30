@@ -41,15 +41,16 @@
 <script>addEventListener("DOMContentLoaded", function () {
     let models = [
               {
-                width: 300,
+                width: 400,
                 height: 400,
-                left: "0px",
+                right: "0px",
                 bottom: "0px",
                 role: "https://live2d.samhou.top/Sorakado_Ao/SorakadoAO.model3.json",
                 background: "",
-                opacity: 1,
+                opacity: 0.8,
                 mobile: false,
-                draggable: true,
+                draggable: false,
+                scale:0.3
               },
     ];
     new Live2dLoader(models);
