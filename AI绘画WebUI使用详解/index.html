@@ -241,8 +241,8 @@ btf.addGlobalFn('pjaxSend', () => {
   const initArtalk = (el = document, pageKey = location.pathname) => {
     artalkItem = Artalk.init({
       el: el.querySelector('#artalk-wrap'),
-      server: 'https://dynamic.samhou.top',
-      site: 'SamHou Blog',
+      server: 'https://comment.samhou.top',
+      site: 'SamHouBlog',
       darkMode: document.documentElement.getAttribute('data-theme') === 'dark',
       ...option,
       pageKey: isShuoshuo ? pageKey : (option && option.pageKey) || pageKey
