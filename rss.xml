@@ -9,7 +9,7 @@
     <atom:link href="https://blog.samhou.top/rss.xml" rel="self" type="application/rss+xml"/>
     
     <description>SamHou 的一个博客，有技术文章，小说和生活学习方法分享。包含 C#、html、css、js 等前后端技术博客文章，以及大量二次创作小说和原创作品。本站基本为每月更新，持续产出优质技术内容。博客以简洁易懂为特色，注重动手实践学习。</description>
-    <pubDate>Thu, 06 Feb 2025 12:27:33 GMT</pubDate>
+    <pubDate>Thu, 06 Feb 2025 12:28:41 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
@@ -18,11 +18,7 @@
       <guid>https://blog.samhou.top/bangumi-media-server-4/</guid>
       <pubDate>Thu, 06 Feb 2025 12:02:57 GMT</pubDate>
       
-        
-        
-      <description>&lt;p&gt;上一篇中，我们发现有些下载的内容无法正常识别，在 Emby 中直接显示为文件名。在前文中已经提到，这是因为字幕组没有遵循 Emby 的命名造成的。正确的文件夹结构应该是：&lt;/p&gt;
-&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;</description>
-        
+      <description>本文介绍了如何通过Docker容器环境自动重命名和整理下载的动漫文件，以便在Emby中正确显示。探索了三种解决方案，最终推荐通过构建自定义Docker镜像来实现。文章详细介绍了Dockerfile的编写、镜像构建过程，并提供了已构建好的镜像供直接使用。此外，还介绍了如何配置AutoAnimeMv脚本以实现自动重命名和整理功能。</description>
       
       
       
