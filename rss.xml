@@ -9,8 +9,41 @@
     <atom:link href="https://blog.samhou.top/rss.xml" rel="self" type="application/rss+xml"/>
     
     <description>SamHou 的一个博客，有技术文章，小说和生活学习方法分享。包含 C#、html、css、js 等前后端技术博客文章，以及大量二次创作小说和原创作品。本站基本为每月更新，持续产出优质技术内容。博客以简洁易懂为特色，注重动手实践学习。</description>
-    <pubDate>Sat, 19 Apr 2025 06:31:03 GMT</pubDate>
+    <pubDate>Sat, 10 May 2025 05:50:49 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>从 UEFI 启动到双系统——记一次双系统 Linux 分区迁移</title>
+      <link>https://blog.samhou.top/from-uefi-to-grub/</link>
+      <guid>https://blog.samhou.top/from-uefi-to-grub/</guid>
+      <pubDate>Sat, 10 May 2025 05:05:02 GMT</pubDate>
+      
+      <description>本文介绍 UEFI 的工作原理，以及在双系统（Windows与Ubuntu）环境下，通过调整分区大小、迁移数据、扩展Linux分区及修复Grub引导配置，解决空间不足问题的完整流程。重点解析了UEFI启动机制下，因分区移动导致的引导失效现象，并通过命令行手动启动系统、更新Grub配置文件，最终实现双系统正常引导的解决方案。</description>
+      
+      
+      
+      <content:encoded><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我的台式电脑上，装了 Windows 和 Linux 双系统。</p><p>我有两块 1 TB 硬盘，就把它们叫作硬盘 0 和硬盘 1 吧。最开始的时候，硬盘 0 上装了 Windows 系统，而我的数据分区装在硬盘 1 上面。</p><p>后来呢，我想体验 Ubuntu，于是用安装程序调整了硬盘 1 的 Data 分区大小，然后在那里装了系统。</p><p>一切都很好，直到一天 Ubuntu 提示我空间不足。</p><p>经过一些合理的构思，我打算这么做：</p><ol><li>清理 Windows 磁盘空间</li><li>调整 Windows 分区大小到 500 G</li><li>清理磁盘 1 上的数据</li><li>复制 Data 分区到磁盘 0 的空闲区域</li><li>扩展磁盘 1 的 Ubuntu 系统分区</li><li>调整系统引导，正确启动系统</li></ol><p>话不多说，我们先来看看一开始的分区示意图。</p><p><img src="https://img.samhou.top/1746855464298.png" alt="初始磁盘"></p><p>然后，我们要达到的目标：</p><p><img src="https://img.samhou.top/1746855486812.png" alt="磁盘目标"></p><p>结果在迁移过程中，耗费最久时间的不是数据复制，而是引导的配置。</p><p>所以，本文就从电脑启动开始，带你深入了解双系统的工作原理，相信你看完就能随便调整电脑了。</p><h2 id="从-BIOS-到-UEFI"><a href="#从-BIOS-到-UEFI" class="headerlink" title="从 BIOS 到 UEFI"></a>从 BIOS 到 UEFI</h2><p>电脑电源接通之后，BIOS（基本输入输出系统，电脑内置）会自动检查各个核心部件（CPU，内存，硬盘……），然后获取启动优先级配置。</p><p>如果你 USB 啥都没插，也没有对 BIOS 进行设置，那么肯定直接从硬盘启动。</p><p>怎么启动呢？传统的 BIOS 会从硬盘第一扇区找到 MBR（主引导记录，里面记录了分区表，和启动引导程序），执行其中的引导程序。引导程序会执行启动操作系统。然而，现在的系统引导或许放不下，那么 MBR 中的引导就不会直接启动系统，而是传递给硬盘指定位置上的二级引导程序。</p><p>好了，现在引导程序已经运行，而我们的系统也随之启动，这样整个启动过程也就完成了。</p><blockquote><p>但是先等等！我们有<strong>两个硬盘</strong>啊！我怎么知道该启动哪一个？</p></blockquote><p>前面说过了，BIOS 中配置了启动优先级，因此，可以有多个 MBR 放在不同硬盘上，而用哪一个都是由 BIOS 配置的。</p><p>但是这种启动方式现在已经不常见了，因为它老旧、只支持最大 2 TB 硬盘，所以已经被淘汰了。</p><p>它的后继者，叫作 UEFI。</p><p>我们再来看看上面的图片。</p><p><img src="https://img.samhou.top/1746855464298.png" alt="磁盘"></p><blockquote><p>EFI 分区是啥！？</p></blockquote><p>相信你也注意到了，我们的硬盘上有叫作 <strong>EFI 分区</strong> 的东西。</p><p>EFI 分区中，就保存着启动操作系统所需的引导程序。</p><p>EFI 分区可以随意调整大小，因此突破了 MBR 大小受限、位置必须在第一扇区的问题。</p><p>和 BIOS 传统启动一样，UEFI 也可以配置启动顺序。每个 EFI 分区都会列出，然后你可以选一个来启动。</p><h2 id="引导程序"><a href="#引导程序" class="headerlink" title="引导程序"></a>引导程序</h2><p>Windows 的引导叫作 Windows Boot Manager。很简单，上面图里硬盘 0 的 EFI 里存着的就是它。而 Linux 通常用的是 Grub，它可以启动 Linux 系统。当我们在安装时，安装程序会自动配置 Grub 的配置文件，向启动添加多个启动项。</p><p>默认的启动项如下：</p><ul><li>Ubuntu（自己启动 Linux）</li><li>Windows Boot Manager（交给 Windows 引导处理）<br>你可以在启动时自由选择，根据你的选项来启动不同系统。</li></ul><h2 id="迁移硬盘"><a href="#迁移硬盘" class="headerlink" title="迁移硬盘"></a>迁移硬盘</h2><p>既然我们已经知道了系统是怎样启动的，那么就开始迁移分区吧！这里用 Disk Genius PE 版本对分区进行修改。</p><p>提示：这里我们用虚拟机模拟操作，因为物理机没办法截图……</p><p>首先打开 PE 系统，缩容 Windows 分区到一半大小。</p><p><img src="https://img.samhou.top/1746855513292.png" alt="缩小分区"></p><p>然后复制 Data 分区到硬盘 0 的空闲区域中。</p><p><img src="https://img.samhou.top/1746855530089.png" alt="复制数据"></p><p>再删除 Data 分区。</p><p><img src="https://img.samhou.top/1746855547603.png" alt="删除重复分区"></p><p>然后磁盘就变成了这样。</p><p>EFI 分区夹在中间，导致 Ubuntu 无法完全利用空间。因此想办法移动到硬盘最前端。</p><p>先记录总扇区数量：</p><p><img src="https://img.samhou.top/1746855590877.png" alt="扇区数量记录"></p><p>然后扩容分区，再缩小到原来的大小。</p><p><img src="https://img.samhou.top/1746855612352.png" alt="扩容 EFI"><img src="https://img.samhou.top/1746855648037.png" alt="缩小 EFI"></p><p>最后扩容 Linux 分区：</p><p><img src="https://img.samhou.top/1746855663772.png" alt="扩容 Linux"></p><p>然后启动系统。</p><p>你会发现，Grub 的配置文件还在，但是由于分区移动，配置文件并不能正常启动 Ubuntu，只能启动到内核阶段：</p><p><img src="https://img.samhou.top/1746855683709.png" alt="内核"></p><h2 id="命令行启动系统"><a href="#命令行启动系统" class="headerlink" title="命令行启动系统"></a>命令行启动系统</h2><p><img src="https://img.samhou.top/1746855702172.png" alt="进入 Grub"></p><p>注：这里没 Windows 是因为开了虚拟机演示。</p><p>按下 c，进入命令行。我们来通过命令行启动系统。</p><p>你应该可以看到 grub&gt; 这个东西。</p><p>输入 boot，提示要先加载内核。</p><p>内核的话，在 &#x2F;boot 里面。</p><p>输入 linux（指定内核），然后输入路径，然后按下 Tab 自动补全：</p><p><img src="https://img.samhou.top/1746855715001.png" alt="指定内核"></p><p>加上 ro 指的是内核只读。</p><p>再输入 boot 命令，然后你会发现系统并没有正常启动。</p><p>这是因为没有指定根目录的位置。</p><p>按 Ctrl+Alt+Delete 重启，然后同样进入命令行，输入 ls 查看磁盘分区。</p><p>然后 ls 后面加上磁盘分区，一个个试一试，直到找到如下的 linux 根目录。</p><p><img src="https://img.samhou.top/1746855731774.png" alt="寻找根目录"></p><p>现在我们就可以用命令行启动了。</p><p>输入类似下面的命令：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">linux /boot/vmlinuz-... ro text root=/dev/sda1<br></code></pre></td></tr></table></figure><p>你的 root 后面跟着的东西可能不同，取决于你的硬盘和分区。你可以执行下面的命令找到分区标识：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cat</span> (hd2,gpt2)/etc/fstab<br></code></pre></td></tr></table></figure><p>把 (hd2,gpt2) 换成你刚刚找到的 linux 主分区。输出应该类似下面：</p><p><img src="https://img.samhou.top/1746855746275.png" alt="安装信息文件"></p><p>这样找到了安装时的分区。然后你就可以推算了。sda 表示安装时使用的硬盘。后面数字表示分区编号。把 sda 后面的数字一个个试一试，直到找到正确的分区。</p><p>然后指定 initrd：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">initrd /boot/initrd.img-...<br></code></pre></td></tr></table></figure><p>再输入 boot 启动系统。</p><p>出现下面这种就是分区错了，只启动了内核，重启换一个 root 分区：</p><p><img src="https://img.samhou.top/1746855769139.png" alt="错误示范"></p><p>否则，就能直接进入系统。</p><h2 id="重新配置-Grub"><a href="#重新配置-Grub" class="headerlink" title="重新配置 Grub"></a>重新配置 Grub</h2><p>为了避免每次启动都要输入命令，在系统中有 <code>update-grub</code> 命令用于修复配置文件。</p><p>直接执行即可。可以看到它识别了 Linux 和 Windows 双系统，至此引导程序修复完毕。</p><p><img src="https://img.samhou.top/1746855783395.png" alt="重新配置 Grub"></p><p><img src="https://img.samhou.top/1746855801325.png" alt="Grub"></p>]]></content:encoded>
+      
+      
+      <category domain="https://blog.samhou.top/categories/linux%E6%95%99%E7%A8%8B/">linux教程</category>
+      
+      
+      <category domain="https://blog.samhou.top/tags/windows/">windows</category>
+      
+      <category domain="https://blog.samhou.top/tags/linux/">linux</category>
+      
+      <category domain="https://blog.samhou.top/tags/bios/">bios</category>
+      
+      <category domain="https://blog.samhou.top/tags/%E7%B3%BB%E7%BB%9F/">系统</category>
+      
+      <category domain="https://blog.samhou.top/tags/%E5%BC%95%E5%AF%BC/">引导</category>
+      
+      <category domain="https://blog.samhou.top/tags/grub/">grub</category>
+      
+      
+      <comments>https://blog.samhou.top/from-uefi-to-grub/#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>Mirror Love (2)</title>
@@ -88,11 +121,11 @@
       <category domain="https://blog.samhou.top/categories/web%E5%BC%80%E5%8F%91/">web开发</category>
       
       
+      <category domain="https://blog.samhou.top/tags/web/">web</category>
+      
       <category domain="https://blog.samhou.top/tags/css/">css</category>
       
       <category domain="https://blog.samhou.top/tags/html/">html</category>
-      
-      <category domain="https://blog.samhou.top/tags/web/">web</category>
       
       
       <comments>https://blog.samhou.top/coding-with-grandma-css-basic/#disqus_thread</comments>
@@ -148,11 +181,11 @@
       
       <category domain="https://blog.samhou.top/tags/bt/">bt</category>
       
-      <category domain="https://blog.samhou.top/tags/emby/">emby</category>
-      
       <category domain="https://blog.samhou.top/tags/nas/">nas</category>
       
       <category domain="https://blog.samhou.top/tags/docker/">docker</category>
+      
+      <category domain="https://blog.samhou.top/tags/emby/">emby</category>
       
       <category domain="https://blog.samhou.top/tags/docker-compose/">docker-compose</category>
       
@@ -177,13 +210,13 @@
       <category domain="https://blog.samhou.top/categories/nas%E6%95%99%E7%A8%8B/">nas教程</category>
       
       
-      <category domain="https://blog.samhou.top/tags/bt/">bt</category>
-      
-      <category domain="https://blog.samhou.top/tags/nas/">nas</category>
-      
       <category domain="https://blog.samhou.top/tags/rss/">rss</category>
       
+      <category domain="https://blog.samhou.top/tags/bt/">bt</category>
+      
       <category domain="https://blog.samhou.top/tags/%E4%B8%8B%E8%BD%BD/">下载</category>
+      
+      <category domain="https://blog.samhou.top/tags/nas/">nas</category>
       
       
       <comments>https://blog.samhou.top/bangumi-media-server-2/#disqus_thread</comments>
@@ -206,48 +239,18 @@
       <category domain="https://blog.samhou.top/categories/nas%E6%95%99%E7%A8%8B/">nas教程</category>
       
       
+      <category domain="https://blog.samhou.top/tags/rss/">rss</category>
+      
       <category domain="https://blog.samhou.top/tags/bt/">bt</category>
+      
+      <category domain="https://blog.samhou.top/tags/%E4%B8%8B%E8%BD%BD/">下载</category>
       
       <category domain="https://blog.samhou.top/tags/nas/">nas</category>
       
       <category domain="https://blog.samhou.top/tags/docker/">docker</category>
       
-      <category domain="https://blog.samhou.top/tags/rss/">rss</category>
-      
-      <category domain="https://blog.samhou.top/tags/%E4%B8%8B%E8%BD%BD/">下载</category>
-      
       
       <comments>https://blog.samhou.top/bangumi-media-server-1/#disqus_thread</comments>
-      
-    </item>
-    
-    <item>
-      <title>利用 Follow 的 RSSHub Transform 转换生成任意网站的 RSS 订阅源</title>
-      <link>https://blog.samhou.top/follow-rsshub-transform-guide/</link>
-      <guid>https://blog.samhou.top/follow-rsshub-transform-guide/</guid>
-      <pubDate>Fri, 13 Dec 2024 10:12:06 GMT</pubDate>
-      
-        
-        
-      <description>&lt;p&gt;最近在用 &lt;a href=&quot;https://github.com/RSSNext/Follow&quot; rel=&quot;external nofollow noreferrer&quot;&gt;Follow&lt;/a&gt; 读 RSS，确实很好用。不仅能自己订阅，还能把列表分享给别人。但是，有很多网站不提供</description>
-        
-      
-      
-      
-      <content:encoded><![CDATA[<p>最近在用 <a href="https://github.com/RSSNext/Follow" rel="external nofollow noreferrer">Follow</a> 读 RSS，确实很好用。不仅能自己订阅，还能把列表分享给别人。但是，有很多网站不提供 RSS 源，<a href="https://github.com/DIYgod/RSSHub" rel="external nofollow noreferrer">RSSHub</a> 的订阅路径也还没有人做（特别是新网站），就特别难受。</p><p>直到我看到了这个。<img src="https://img.samhou.top/1734080939940.png" alt="订阅转换器"></p><p>一番尝试后发现，这个转换 (Transform) 居然用的就是 RSSHub！不得不看看<a href="https://docs.rsshub.app/zh/routes/other#transformation-html" rel="external nofollow noreferrer">文档</a>了。</p><h2 id="开始食用"><a href="#开始食用" class="headerlink" title="开始食用"></a>开始食用</h2><p>首先，打开 Follow，转到添加-转换（如上面的图片所示）。看起来很可怕，但是别担心！只需要一点 Html 基础，本文将手把手教你提取文章内容。你将会学到如何用 CSS 选择器，来选择需要的内容。</p><p>我们将以 <a href="https://englishnewsinlevels.com/news/level-3" rel="external nofollow noreferrer">https://englishnewsinlevels.com/news/level-3</a> 为例，详细解释订阅源的制作方法。</p><h3 id="提取文章-Item"><a href="#提取文章-Item" class="headerlink" title="提取文章 Item"></a>提取文章 Item</h3><p>首先，在目标网站右键，菜单中选择检查，查看界面的 Html。<img src="https://img.samhou.top/1734082127549.png" alt="打开 Html 查看器"></p><p>在此处，你可以看到网页的源代码。你可以从代码中大致看出网页的层次。在这个网站上，它首先是一个容器，而其中包含了几篇文章。我们的目标是获取文章元素，填入到 Item 栏中。Item 栏中的元素应该包含每篇文章的所有内容（即，标题+描述+……）。为了获得文章元素，可以先点击如图所示的选择器，然后把鼠标移动到文章标题，目标元素的代码便会自动高亮。</p><p><img src="https://img.samhou.top/1734082449124.png" alt="选择页面元素"></p><p>在本例中，标题+北极熊图片是整个 Item，而 <code>Brave Man Saves Wife from Polar Bear Attack</code> 是标题。</p><p>让我们仔细看看这段代码。（此处省略了一些内容，来便于你理解）</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">article</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;flex flex-col items-start justify-start&quot;</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;relative w-full&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">alt</span>=<span class="hljs-string">&quot;Brave Man Saves Wife from Polar Bear Attack&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;...&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;...&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/news/level-3/brave-man-saves-wife-from-polar-bear-attack&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;max-w-xl w-full&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;mt-5&quot;</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;text-stone-500 text-xs&quot;</span>&gt;</span>10 December, 2024<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;...&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/news/level-3/brave-man-saves-wife-from-polar-bear-attack&quot;</span>&gt;</span>Brave Man Saves Wife from Polar Bear Attack<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br>      <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;mt-3&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;relative flex items-center gap-x-2&quot;</span>&gt;</span><br>          <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;...&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/news/level-3/brave-man-saves-wife-from-polar-bear-attack&quot;</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>Level 3<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;text-gray-400&quot;</span>&gt;</span><br>              <span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">viewBox</span>=<span class="hljs-string">&quot;0 0 2 2&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;size-0.5 fill-current&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">circle</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">&quot;1&quot;</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">&quot;1&quot;</span> <span class="hljs-attr">r</span>=<span class="hljs-string">&quot;1&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">circle</span>&gt;</span><br>              <span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span><br>            <span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>210 words<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>      <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">article</span>&gt;</span><br></code></pre></td></tr></table></figure><p>可以看到，这篇文章是放在 <code>&lt;/article&gt;</code> 母容器中的，因此，Item 栏内需要填入 <code>article</code> 作为元素。</p><h3 id="提取标题"><a href="#提取标题" class="headerlink" title="提取标题"></a>提取标题</h3><p>标题，RSS 必要的东西。在这里，要填写的是 ItemTitle。</p><p>那么填写什么呢？当然是提取网页 html 元素！</p><p>怎么提取呢？来看看 <a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_selectors" rel="external nofollow noreferrer">CSS 选择器</a> 吧！它可以指定网页中的某个 Html 标签内容。</p><p>还是通过例子来解释吧！</p><p>把上面的 Html 属性都去掉，然后删掉点不需要的内容，简化为：</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">article</span>&gt;</span><br> <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Time<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">a</span>&gt;</span>Title<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br> <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">article</span>&gt;</span><br></code></pre></td></tr></table></figure><p>清楚多了。</p><p>也就是说，我们需要取得 h2 中的内容。很简单，要什么元素就写什么，直接把 <code>h2</code> 填入ItemTitle。尝试预览下，果然文章有标题了。</p><p><img src="https://img.samhou.top/1734085681152.png" alt="有标题的文章"></p><h3 id="提取链接"><a href="#提取链接" class="headerlink" title="提取链接"></a>提取链接</h3><p>每个 RSS 都应该指向一个链接，以便于你访问源网站。在此，我们需要填写 ItemLink。一样的道理，还是用 CSS 选择器，不过这次选择的是 a 元素，因为它是链接元素。</p><p>那么，<strong>h2 下的 a</strong> 怎么取出呢？当然可以直接写 <code>a</code>。但这样有个问题，整个网页里有多个 a 元素，你怎么知道要取出哪一个呢？你可能已经注意到了，上面的代码里所有 a 的 href（链接）都是一样的，所以选哪个都一样。但是，如果你选的网页和我不一样，那么可能出现一些问题（比如存在<strong>多个不同的链接</strong>）。</p><p>根据 CSS 选择器文档，可以使用组合器取出元素中的子元素。</p><p>格式：<code>母 子 子 ...</code> <strong>把元素用空格隔开</strong>。</p><p>在这个例子里，应该这样写 <code>h2 a</code> 。</p><p>预览，添加，大功告成！（剩下的不是必填项，如果你感兴趣，可以自己查文档填写）</p><p><img src="https://img.samhou.top/1734086198740.png" alt="最终填写内容"></p><h3 id="一点小遗憾"><a href="#一点小遗憾" class="headerlink" title="一点小遗憾"></a>一点小遗憾</h3><p>由于 Transform 的限制，似乎不能添加不在同一界面上的 Html 内容。因此，生成的文章只有标题和自动提取的一点简介，没有全文 RSS。如果想要更好体验的话，还是自己编写路由规则比较好~</p><h2 id="手动添加"><a href="#手动添加" class="headerlink" title="手动添加"></a>手动添加</h2><p><strong>一个小提示：为避免安全问题，官方 RSSHub 实例不提供 Transform。如果你把构建的订阅源粘贴后，得到 <code>ConfigNotFoundError: This RSS is disabled unless &#39;ALLOW_USER_SUPPLY_UNSAFE_DOMAIN&#39; is set to &#39;true&#39;.</code> 的错误，请改用自建 RSSHub。如果你没有服务器，那么建议<a href="#%E5%BC%80%E5%A7%8B%E9%A3%9F%E7%94%A8">使用 Follow</a>。</strong></p><p>众所周知，RSSHub 利用的是路由。而我们这里使用的转换，就是路由的其中一条。让我们看看文档里是怎么说的。</p><blockquote><p>🛎️ Route: <code>/rsshub/transform/html/:url/:routeParams</code></p></blockquote><p>翻译为中文——</p><blockquote><p>🛎️ 路由: <code>/rsshub/transform/html/想要生成的网站Url/路径参数</code></p></blockquote><p>很清楚吧？那么有哪些参数呢？</p><p>实际上，Follow 前面的菜单上已经列出来这些参数了，上面我们也涉及了它们其中的一些。因此，这里就不再赘述了，感兴趣的可以自己看看文档</p><p><strong>小提示：网页链接需要编码转换，自己搜一下在线转换就好啦。</strong></p><p>那么，本文就到这里了~希望各位都能用好 RSS。</p><p>顺便推荐一下本站的 RSS（不需要本文的方法就能直接用！）：<a href="https://blog.samhou.top/rss.xml">https://blog.samhou.top/rss.xml</a></p><p>Follow 上可以直接订阅，不用复制粘贴：<a href="https://app.follow.is/share/feeds/85515549426631680" rel="external nofollow noreferrer">https://app.follow.is/share/feeds/85515549426631680</a></p>]]></content:encoded>
-      
-      
-      <category domain="https://blog.samhou.top/categories/rss%E6%95%99%E7%A8%8B/">rss教程</category>
-      
-      
-      <category domain="https://blog.samhou.top/tags/rss/">rss</category>
-      
-      <category domain="https://blog.samhou.top/tags/web/">web</category>
-      
-      <category domain="https://blog.samhou.top/tags/rsshub/">rsshub</category>
-      
-      
-      <comments>https://blog.samhou.top/follow-rsshub-transform-guide/#disqus_thread</comments>
       
     </item>
     
