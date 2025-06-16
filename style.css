@@ -1,24 +1,152 @@
-body{
-    color: white;
-    background-color: rgb(15, 16, 47);
+/* Import ttf */
+@font-face {
+    font-family: Xiaolai;
+    src: url('./font/Xiaolai-Regular.ttf');
 }
-h1,h2{
-    text-align: center;
+/* Set basic design */
+.main-text {
+    color: #d2ddeb;
+    font-size: 20px;
+    font-weight: 500;
 }
-p,ol{
-    margin-left: 20%;
-    margin-right: 20%;
+.main-text-reverse{
+    color: #07121b;
+    font-size: 20px;
+    font-weight: 500;
 }
-.intro{
-    text-align: center;
+.sub-text {
+    color: #98a8bd;
+    font-size: 20px;
+    font-weight: lighter;
 }
-h3,h4,h5,h6{
-    margin-left: 20%;
+/* img with text below */
+.text-img{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
-a:link,a:active{
-    color: rgb(44, 202, 255);
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0;
+    font-family: Xiaolai,sans-serif;
 }
-a:visited,a:hover{
-    color: white;
+/* The heading including name and links */
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 20vh;
+    background-color: #0e5068;
 
+}
+
+.namebox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    margin: 0px 20px;
+}
+
+.namebox img {
+    border: 3px solid #5353bf;
+    border-radius: 4px;
+}
+
+.nav {
+    list-style-type: none;
+    display: flex;
+    padding: 0px 20px;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+a {
+    text-decoration: dotted;
+}
+
+a:hover {
+    color: white;
+}
+/* Quote from SamHou */
+.quote {
+    display: flex;
+    flex: 1 1 40vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #0e5068;
+    gap: 20px;
+    font-size: 50px;
+    padding: 0 20vh;
+}
+
+.quote p {
+    padding: 0px;
+    margin: 0px;
+    text-align: center;
+}
+
+.quote .words {
+    font-style: italic;
+    font-weight: bolder;
+}
+
+.quote .people {
+    font-size: 20px;
+    font-weight: lighter;
+}
+/* About self section */
+.content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: 50px 25vh;
+    border-radius: 30px;
+    padding: 50px;
+    gap: 50px;
+    background-color: #dcdbdb;
+    font-style: italic;
+    font-weight: bolder;
+    line-height: 2;
+}
+/* Blog promotion banner */
+.banner {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 50px 25vh;
+    background-color: #128cb5dc;
+    border: 5px #128cb5dc;
+    border-radius: 20px;
+    padding: 40px;
+    gap: 50px;
+}
+
+.banner button {
+    border: 3px #1a76ffdc;
+    background-color: #1a76ffdc;
+    border-radius: 10px;
+    padding: 10px 30px;
+    text-align: center;
+    color: white;
+    white-space: nowrap;
+}
+
+.banner button:hover {
+    background-color: #1ac6ff;
+}
+/* Bottom copyright info */
+.bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #0e5068e0;
+    margin: 0px;
+    padding: 30px;
+    flex: 1 0 10vh;
 }

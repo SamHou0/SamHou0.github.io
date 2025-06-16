@@ -5,54 +5,45 @@
     <meta charset="utf-8">
     <title>SamHou's Site</title>
     <link href="style.css" rel="stylesheet">
-    <link href="img\SamHou.png" rel="icon" type="image/png">
+    <link href="./img/SamHou.png" rel="icon" type="image/png">
 </head>
 
 <body>
-    <h1>SamHou's site</h1>
-    <h2>这里是SamHou的网站主页</h2>
-    <h3>关于我</h3>
-    <p>是一个来自上海的高中生，喜欢技术，也爱折腾</p>
-    <p>想知道我有哪些公开的作品？看看这个：<a href="index/">茵蒂克丝</a></p>
-    <h3>博客</h3>
-    <p>博客是一个分享知识、技术的地方，也有一些非技术性的内容以及心得</p>
-    <p><a href="https://blog.samhou.top/">链接</a></p>
-    <h3>参与的项目</h3>
-    <p><img src="https://githubstats.samhou.top/api?username=samhou0&theme=tokyonight" /></p>
-    <h4>TimeControl</h4>
-    <p>这是个计算机时间管理程序，可以在windows上运行，<a href="https://github.com/SamHou0/ComputerTimeControl">链接</a></p>
-    <h3>语言</h3>
-    <ol>
-        <li>C#</li>
-        <li>C++</li>
-        <li>html</li>
-        <li>python</li>
-    </ol>
-    <h4>联系</h4>
-    <ol>
-        <li>Email: <a href="mailto:samhou0@outlook.com">samhou0@outlook.com</a>，支持OpenPGP加密，下载<a
-                href="resource\public_key.asc">公钥</a></li>
-        <li><a href="https://github.com/SamHou0">GitHub</a></li>
-        <li><a href="https://space.bilibili.com/456964528">B站私信</a></li>
-    </ol>
+    <div class="header">
+        <div class="namebox">
+            <img src="./img/SamHou.png" width="50px" alt="SamHou's Avatar">
+            <div class="main-text">SamHou</div>
+        </div>
+        <ul class="nav">
+            <li><a class="sub-text" href="https://blog.samhou.top">Blog</a></li>
+            <li><a class="sub-text" href="https://social.samhou.top/@samhou">Social</a></li>
+        </ul>
+    </div>
+    <div class="quote main-text">
+        <p class="words">Sleep for a better life.</p>
+        <p class="people">-- SamHou</p>
+    </div>
+    <div class="content main-text-reverse">
+        <div>关于我</div>
+        <div>“只是一个喜欢技术的学生罢了。技术之外，对 ACGN 也很有兴趣……那些美好，虽不是我们的亲身经历，却是我们人生中无可替代的宝物。”</div>
+        <div class="namebox">
+            <div>现在最喜欢的是和泉つばす老师的角色空门苍！</div>
+            <div class="text-img">
+                <img src="./img/ao.webp" alt="Ao's Avatar" width="100px">
+                <div class="sub-text">(Illust by Izumi Tsubasu) </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="banner main-text">
+        <div>为什么不来博客看看呢？或许有你想看的文章哦！</div>
+        <a href="https://blog.samhou.top">
+            <button class="sub-text">去看看<br>ヾ(≧▽≦*)o</button>
+        </a>
+    </div>
+    <div class="bottom sub-text">
+        Copyright © 2019-present Sam Hou. All rights reserved.
+    </div>
 </body>
-<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
-<script src="https://cdn.jsdelivr.net/combine/gh/dylanNew/live2d/webgl/Live2D/lib/live2d.min.js,npm/pixi.js@6.5.2/dist/browser/pixi.min.js,npm/pixi-live2d-display/dist/index.min.js,gh/Weidows-projects/Live2dLoader/dist/Live2dLoader.min.js"></script>
-<script>addEventListener("DOMContentLoaded", function () {
-    let models = [
-              {
-                width: 400,
-                height: 400,
-                right: "0px",
-                bottom: "0px",
-                role: "https://live2d.samhou.top/SorakadoAO/SorakadoAO.model3.json",
-                background: "",
-                opacity: 0.8,
-                mobile: false,
-                draggable: false,
-                scale:0.3
-              },
-    ];
-    new Live2dLoader(models);
-  });</script>
+
 </html>
