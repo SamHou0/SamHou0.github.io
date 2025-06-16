@@ -1,7 +1,7 @@
 /* Import ttf */
 @font-face {
     font-family: Xiaolai;
-    src: url('./font/Xiaolai-Regular.ttf');
+    src: url('./font/Xiaolai-Regular.woff2');
 }
 /* Set basic design */
 .main-text {
