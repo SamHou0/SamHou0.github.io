@@ -9,8 +9,39 @@
     <atom:link href="https://blog.samhou.top/rss.xml" rel="self" type="application/rss+xml"/>
     
     <description>SamHou 的一个博客，有技术文章，小说和生活学习方法分享。包含 C#、html、css、js 等前后端技术博客文章，以及大量二次创作小说和原创作品。本站基本为每月更新，持续产出优质技术内容。博客以简洁易懂为特色，注重动手实践学习。</description>
-    <pubDate>Sun, 15 Jun 2025 09:36:17 GMT</pubDate>
+    <pubDate>Sun, 17 Aug 2025 12:11:26 GMT</pubDate>
     <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>EdgeOne 搭配 Cloudflare R2 自建优质图床</title>
+      <link>https://blog.samhou.top/edgeone-with-r2/</link>
+      <guid>https://blog.samhou.top/edgeone-with-r2/</guid>
+      <pubDate>Sun, 17 Aug 2025 11:08:16 GMT</pubDate>
+      
+      <description>利用腾讯云EdgeOne加速Cloudflare R2存储，解决国内访问慢的问题，提供免费图床方案。包含域名配置、HTTPS证书申请及PicGo插件使用教程，实现高效图片托管。</description>
+      
+      
+      
+      <content:encoded><![CDATA[<p>Cloudflare 赛博大善人我就不多说了，R2 10GB 存储空间，用来存博客图片这辈子都用不完。</p><p>然而，CF 的节点在国内的访问速度真的一言难尽，全跑美国了，加载个图片要等十几秒你敢信？</p><p>是时候让腾讯云出马了！它的海外版 EdgeOne 不仅免费，而且免备案，可用于加速 R2 的图片分发。</p><p>本博客就用了 Edgeone 加速 R2，虽然比不上 Vercel，但是无限流量用来做图床很好用（看看下面的对比吧，第一个 Vercel，第二个 EdgeOne，第三个纯 R2）。</p><p><img src="https://img.samhou.top/1755425392039.png" alt="这是 Vercel"></p><p><img src="https://img.samhou.top/1755431235270.png" alt="这是 EdgeOne"></p><p><img src="https://img.samhou.top/1755431348249.png" alt="这是 R2 自己"></p><h2 id="获取-EdgeOne"><a href="#获取-EdgeOne" class="headerlink" title="获取 EdgeOne"></a>获取 EdgeOne</h2><p>这部分很简单，直接打开 <a href="https://edgeone.ai/" rel="external nofollow noreferrer">https://edgeone.ai/</a>，然后获取免费套餐即可。需要注册一个账号。</p><p>需要注意的是 EdgeOne 会提示你测速然后分享才能获取免费版（也就是帮官方宣传一下，现在用的人少），<del>实际上你测完速度之后点一下分享就好了，没必要真的把帖子发出去</del>。</p><p><strong>警告：不要滥用 EdgeOne。官方提示不允许免费套餐用于大文件传输，比如游戏安装包。仅供个人和小型企业开网站使用。</strong></p><h2 id="配置-EdgeOne"><a href="#配置-EdgeOne" class="headerlink" title="配置 EdgeOne"></a>配置 EdgeOne</h2><p>首先，你得有域名，才能激活 Edgeone。</p><p>这部分跟着提示走就行了，加速区域选全球可用（不含中国大陆）即可。</p><p>接下来你应该会看到这个界面，选择域名服务-域名管理，添加域名（我这里已经加了）。</p><p><img src="https://img.samhou.top/1755429585995.png" alt="管理面板"></p><p>然后你会看到这个界面。加速域名自己选，然后回源选择对象存储。打开私有访问授权。</p><p><img src="https://img.samhou.top/1755429932201.png" alt="回源配置"></p><p>现在重点来了，打开你的 R2 API 管理，整一个对象只读或者读写的 Key。指定你想用的存储桶，防止安全问题：</p><p><img src="https://img.samhou.top/1755429975892.png" alt="配置界面"></p><p>然后你会得到你的 API，把 ID 和密钥分别填入 EdgeOne 的私有访问授权。地域你可以填 auto，或者你创建存储桶时候的地域。</p><p><img src="https://img.samhou.top/1755430062233.png" alt="示例"></p><p>接下来，复制下面的那个终结点，然后在网址前面加上存储桶名称，改成</p><p><code>https://&lt;存储桶名称&gt;.123456abcdefg.r2.cloudflarestorage.com</code>，填入 EdgeOne 的源站地址。保存。</p><p>然后根据提示去你的域名提供商那面配置 DNS 即可。</p><h2 id="颁发-https-证书"><a href="#颁发-https-证书" class="headerlink" title="颁发 https 证书"></a>颁发 https 证书</h2><p>现在你可以试试访问你的加速域名，会报 http 5 开头的错误。cf 会提示你 https 证书有问题。这是因为 EdgeOne 还没发证书，但是 R2 默认有证书。</p><p>那么我们来领取证书。</p><p>很难崩的事情是，我当初找了半天都没看见证书在哪里领，实际上你的屏幕不够长它会藏起来，你要先向右拖动：</p><p><img src="https://img.samhou.top/1755430538001.png" alt="领完了的样子"></p><p>选择申请免费证书，等一会就能用了。</p><h2 id="Picgo-食用指南"><a href="#Picgo-食用指南" class="headerlink" title="Picgo 食用指南"></a>Picgo 食用指南</h2><p><a href="https://github.com/Molunerfinn/PicGo" rel="external nofollow noreferrer">Picgo</a> 可以自动上传图片，然后把图片直链或者 MD&#x2F;html 格式的链接给你。</p><p>是的，你可以用 PicGo 的插件 <a href="https://github.com/wayjam/picgo-plugin-s3" rel="external nofollow noreferrer">picgo-plugin-s3</a> 访问 R2，食用你的图床，提供自动重命名功能。本博客的图片都是按照时间戳来命名的，然而一通配置后输出的 URL 根本用不了。结果折腾几小时，发现是它自己的 Bug 我是真没想到。于是我就给作者交了个 Issue，见 <a href="https://github.com/wayjam/picgo-plugin-s3/issues/58" rel="external nofollow noreferrer">#58</a></p><p>分享下规避这个 Bug，能用的配置。</p><ul><li>上传文件路径中，配置 <code>&#123;timestampMS&#125;.&#123;extName&#125;</code></li><li>设置输出图片 URL 前缀中，配置 <code>https://img.samhou.top/</code>（你的图片域名）</li></ul><p>包好用的。相信我。</p>]]></content:encoded>
+      
+      
+      <category domain="https://blog.samhou.top/categories/web%E5%BC%80%E5%8F%91/">web开发</category>
+      
+      
+      <category domain="https://blog.samhou.top/tags/web/">web</category>
+      
+      <category domain="https://blog.samhou.top/tags/cdn/">cdn</category>
+      
+      <category domain="https://blog.samhou.top/tags/%E5%9B%BE%E5%BA%8A/">图床</category>
+      
+      <category domain="https://blog.samhou.top/tags/cloudflare/">cloudflare</category>
+      
+      <category domain="https://blog.samhou.top/tags/edgeone/">edgeone</category>
+      
+      
+      <comments>https://blog.samhou.top/edgeone-with-r2/#disqus_thread</comments>
+      
+    </item>
     
     <item>
       <title>手把手 Flexbox——从零开始的奶奶级 Web 开发教程3</title>
@@ -214,37 +245,6 @@
       
       
       <comments>https://blog.samhou.top/bangumi-media-server-4/#disqus_thread</comments>
-      
-    </item>
-    
-    <item>
-      <title>解锁最佳看番姿势 (3)  搭建 Emby 服务器</title>
-      <link>https://blog.samhou.top/bangumi-media-server-3/</link>
-      <guid>https://blog.samhou.top/bangumi-media-server-3/</guid>
-      <pubDate>Thu, 30 Jan 2025 13:02:25 GMT</pubDate>
-      
-      <description>本文详细介绍了如何搭建Emby服务器并在线播放资源。首先，通过Docker部署Emby服务器，并解释了如何从Docker Hub获取和修改配置文件。文章强调了Docker的网络模式，特别是host和bridge模式的区别。接着，指导读者如何访问和配置Emby服务器，以及如何解决番剧文件命名不一致的问题。最后，推荐了Animeko客户端，并详细说明了如何配置Emby的API密钥以便客户端访问。本文为读者提供了从零开始搭建个人媒体服务器的指南。</description>
-      
-      
-      
-      <content:encoded><![CDATA[<p>在上一篇中，我们已经学习了如何用 RSS自动下载资源。而本篇将搭建 Emby 服务器，在线播放这些资源。</p><p><a href="https://emby.media/" rel="external nofollow noreferrer">Emby 官网</a>看这里（你也可以在这里找到 Docker 安装的教程）。</p><p><strong>Warning：本教程不涉及任何硬件加速解码内容，因为 Emby 社区版不支持，且个人使用软路由，无硬件加速。</strong></p><p>Emby 怎么部署呢？当然还是我们的老熟人 Docker 啦。不熟悉的话去看<a href="https://blog.samhou.top/bangumi-media-server-1/">第一篇</a>咯~</p><p>和之前一样，创建一个文件夹 emby，然后创建 config 子文件夹用于保存配置，然后创建 docker-compose.yaml。</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">mkdir</span> emby<br><span class="hljs-built_in">cd</span> emby<br><span class="hljs-built_in">mkdir</span> config<br>vim docker-compose.yaml<br></code></pre></td></tr></table></figure><p>为了启动服务端，我们当然需要和之前一样的配置文件 docker-compose.yaml。</p><p>但是上次是我直接让你复制粘贴的。</p><p>这次要告诉你的，是这个配置怎么去获取。</p><h2 id="Docker-Hub"><a href="#Docker-Hub" class="headerlink" title="Docker Hub"></a>Docker Hub</h2><p>让我们隆重介绍 <a href="https://hub.docker.com/" rel="external nofollow noreferrer">Docker Hub</a>！</p><p>这是 docker 容器的镜像仓库，存储了所有的公开 docker 镜像（镜像，简单来说就是程序+环境，能够部署的可执行文件）。其实我们已经用过它了——你每次运行 docker，程序会自动访问 Docker Hub，帮你下载好镜像，然后按照你的配置部署。让我们回看第一篇中的配置文件：</p><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">version:</span> <span class="hljs-string">&quot;3.9&quot;</span><br><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">qbittorrent:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">tlan16/qbittorrent-enhanced:latest</span> <span class="hljs-comment">#这个就是镜像名啦</span><br>    <span class="hljs-attr">container_name:</span> <span class="hljs-string">qbittorrent</span><br>    <span class="hljs-attr">environment:</span><br></code></pre></td></tr></table></figure><p><code>qbittorrent-enhanced</code> 是镜像的名称，<code>tlan16</code> 是作者的名字，<code>latest</code> 就是最新版本的意思。</p><p>把 <code>tlan16/qbittorrent-enhanced</code> 输入 Docker Hub 的搜索框，很快就能找到这个镜像啦。然后我们往下翻一下……</p><p><img src="https://img.samhou.top/1738069001994.png" alt="Docker Hub"></p><p>看到没？容器配置在这里！</p><p>然后根据英文，你就很容易理解啦。（第一篇讲过，不再赘述）</p><h2 id="Emby-的配置文件"><a href="#Emby-的配置文件" class="headerlink" title="Emby 的配置文件"></a>Emby 的配置文件</h2><p>好了，方法已经交给你了，现在得靠你自己找配置文件了。</p><p>打开 <a href="https://hub.docker.com/" rel="external nofollow noreferrer">Docker Hub</a>，搜索 emby，然后找个你自己喜欢的镜像找找安装指南和配置文件（然后改一下文件映射），粘贴到刚才打开的 vim 里，然后保存启动。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">docker-compose up -d<br></code></pre></td></tr></table></figure><p>先别急着往下翻！看看你是否能够自己找到并修改。（提示：如果你没改配置，默认端口号 <em>8096</em> 哦，可以访问下试试，如果能够正常读取下载里面的番剧就是成功。）</p><h2 id="配置文件中的网络"><a href="#配置文件中的网络" class="headerlink" title="配置文件中的网络"></a>配置文件中的网络</h2><p>先来看看配置文件吧（你的可能有所不同，但能用就行）。</p><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">version:</span> <span class="hljs-string">&quot;2.3&quot;</span><br><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">emby:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">emby/embyserver</span><br>    <span class="hljs-attr">container_name:</span> <span class="hljs-string">embyserver</span><br>    <span class="hljs-attr">network_mode:</span> <span class="hljs-string">host</span> <span class="hljs-comment"># Enable DLNA and Wake-on-Lan</span><br>    <span class="hljs-attr">environment:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">UID=1000</span> <span class="hljs-comment"># The UID to run emby as (default: 2)</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">GID=100</span> <span class="hljs-comment"># The GID to run emby as (default 2)</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">GIDLIST=100</span> <span class="hljs-comment"># A comma-separated list of additional GIDs to run emby as (default: 2)</span><br>    <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">./config:/config</span> <span class="hljs-comment"># Configuration directory</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">/path/to/downloads:/mnt/share1</span> <span class="hljs-comment"># Media directory</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-number">8096</span><span class="hljs-string">:8096</span> <span class="hljs-comment"># HTTP port</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-number">8920</span><span class="hljs-string">:8920</span> <span class="hljs-comment"># HTTPS port</span><br>    <span class="hljs-attr">restart:</span> <span class="hljs-string">on-failure</span><br></code></pre></td></tr></table></figure><p>注意到了吗？这里的 <code>network_mode: host</code>，表示使用 host 网络模式。之前可不是这样，我们并没有设置网络模式。实际上，这是因为 docker 默认使用 bridge 网络模式。</p><blockquote><p>喂……你觉得这玩意我能听懂吗？解释下这两个模式的不同啊！</p></blockquote><p>你先别急。用人话来说，一个是把容器里面的端口映射到主机 (bridge)，另一个是容器接管主机 (host)。</p><p>当设置为 host 模式时，端口映射不会生效。比如上面的配置中，ports 的设定根本就是多余的。</p><h2 id="访问你的-Emby"><a href="#访问你的-Emby" class="headerlink" title="访问你的 Emby"></a>访问你的 Emby</h2><p>好了，创建服务端讲的够多了，现在试着访问 ip:8096 吧。</p><p>接下来傻瓜式配置，选好你的文件夹，一路下一步到底，你就会的到一个可看的 Bangumi 文件夹啦。</p><p>但是，由于字幕组间的标记不同，你的番剧很可能是这样的（字幕组等信息略去）：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs filename">[*][Medalist][04][1080p][JPSC].mp4<br>[*] MOMENTARY LILY 剎那之花 - 04 [1080P][**][WEB-DL][AAC AVC][CHT].mp4<br></code></pre></td></tr></table></figure><p>这种单文件命名 Emby 有时根本无法识别啊！</p><p>但这个重命名问题，我们留到下一篇再解决（至少有些还能看）。</p><h2 id="Animeko"><a href="#Animeko" class="headerlink" title="Animeko"></a>Animeko</h2><p>本篇先再推荐一款可以和 Emby 一起用的客户端，可以添加弹幕——<a href="https://myani.org/" rel="external nofollow noreferrer">Animeko</a></p><p>首先，你需要到上面的官网下载客户端。</p><p>然后，我们一起来添加一个 ApiKey，这是客户端访问你的 Emby 的凭证。</p><p>打开 Animeko，右上角设置 - 数据源 - 数据源列表 - 添加 <code>+</code> - Emby，BaseUrl 输入你的 Emby 地址。</p><p><img src="https://img.samhou.top/1738243303862.png" alt="配置 Emby"></p><p>转到 Emby - 右上角设置 - 用户 - 你，看浏览器地址栏 userId&#x3D; 后面内容，复制过来。</p><p>转到 API 密钥（需要往下翻一下），创建新的密钥，名称随便填。</p><p>看到下面创建的东西，说明已经创建。</p><p><img src="https://img.samhou.top/1738243462100.png" alt="Api 密钥"></p><p>红框里打码的内容就是你的凭证。然后，你会发现用鼠标无法选中……也就没办法复制出来……因为你长按点选会直接把这一栏拖动……</p><p>这不知道算不算 Bug，但如果你运气好也能用鼠标选择。</p><p>如果你和我一样无法点选，有两种方法。</p><ul><li>用 Shift+左右方向键选择并复制。</li><li>打开浏览器检查面板，直接从网页 HTML 中复制。</li></ul><p>第二种方法学会了也很简单，之前写过，此处不再赘述，参见<a href="https://blog.samhou.top/follow-rsshub-transform-guide/#%E6%8F%90%E5%8F%96%E6%96%87%E7%AB%A0-Item">提取文章 Item 的方法</a>。</p><p>填好之后保存，然后就能用啦。</p><p>随便搞个条目，开始观看的时候选择你的 Emby 即可。</p><h2 id="写在后面"><a href="#写在后面" class="headerlink" title="写在后面"></a>写在后面</h2><p>本篇我们配置了 Emby，学习了 docker-compose 文件的获取和编辑方法，并涉及了 Docker 网络的某些知识。</p><p>而在下一篇中，我们将深入 Docker 容器内部，通过自动运行外部程序的设置，对文件进行自动重命名操作。</p><p>Enjoy!</p>]]></content:encoded>
-      
-      
-      <category domain="https://blog.samhou.top/categories/nas%E6%95%99%E7%A8%8B/">nas教程</category>
-      
-      
-      <category domain="https://blog.samhou.top/tags/bt/">bt</category>
-      
-      <category domain="https://blog.samhou.top/tags/nas/">nas</category>
-      
-      <category domain="https://blog.samhou.top/tags/docker/">docker</category>
-      
-      <category domain="https://blog.samhou.top/tags/emby/">emby</category>
-      
-      <category domain="https://blog.samhou.top/tags/docker-compose/">docker-compose</category>
-      
-      
-      <comments>https://blog.samhou.top/bangumi-media-server-3/#disqus_thread</comments>
       
     </item>
     
