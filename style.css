@@ -1,10 +1,14 @@
+html{
+    font-size: large;
+    font-family: "Noto Sans SC", sans-serif;
+}
 body {
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: #2c303a;
     color: aliceblue;
-    margin: 0;
+    margin: 10px;
 }
 
 a:link,
@@ -43,6 +47,11 @@ nav ul li {
     padding: 5px;
 }
 
+h2{
+    color: #eaca8a;
+    border-bottom: 1px solid aliceblue;
+}
+
 #info {
     display: flex;
     flex-direction: row;
@@ -70,15 +79,22 @@ nav ul li {
 nav ul li {
     display: inline;
 }
-#about{
+
+#about {
     padding: 5px;
 }
 
 blockquote {
     margin: 0;
 }
-.fadeout{
+
+.fadeout, del {
     color: rgba(240, 248, 255, 0.368);
+    border-bottom-color: rgba(240, 248, 255, 0.368);
+}
+.stress{
+    border: 2px solid #877755;
+    padding: 10px;
 }
 
 blockquote ul {
@@ -88,9 +104,10 @@ blockquote ul {
 }
 
 blockquote ul li {
-    padding: 0.5em 0.2em;
+    padding: 0.3em 0.2em;
     text-decoration: dotted;
     font-style: italic;
+    margin: 0px;
 }
 
 footer {
