@@ -1,152 +1,115 @@
-/* Import ttf */
-@font-face {
-    font-family: Xiaolai;
-    src: url('./font/Xiaolai-Regular.woff2');
-}
-/* Set basic design */
-.main-text {
-    color: #d2ddeb;
-    font-size: 20px;
-    font-weight: 500;
-}
-.main-text-reverse{
-    color: #07121b;
-    font-size: 20px;
-    font-weight: 500;
-}
-.sub-text {
-    color: #98a8bd;
-    font-size: 20px;
-    font-weight: lighter;
-}
-/* img with text below */
-.text-img{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
 body {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    margin: 0;
-    font-family: Xiaolai,sans-serif;
-}
-/* The heading including name and links */
-.header {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 20vh;
-    background-color: #0e5068;
-
-}
-
-.namebox {
-    display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 30px;
-    margin: 0px 20px;
+    background-color: #2c303a;
+    color: aliceblue;
+    margin: 0;
 }
 
-.namebox img {
-    border: 3px solid #5353bf;
-    border-radius: 4px;
-}
-
-.nav {
-    list-style-type: none;
-    display: flex;
-    padding: 0px 20px;
-    justify-content: space-between;
-    gap: 30px;
-}
-
-a {
-    text-decoration: dotted;
+a:link,
+a:visited,
+a:active {
+    color: aliceblue;
 }
 
 a:hover {
-    color: white;
-}
-/* Quote from SamHou */
-.quote {
-    display: flex;
-    flex: 1 1 40vh;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #0e5068;
-    gap: 20px;
-    font-size: 50px;
-    padding: 0 20vh;
+    color: aqua;
 }
 
-.quote p {
-    padding: 0px;
-    margin: 0px;
-    text-align: center;
-}
-
-.quote .words {
-    font-style: italic;
-    font-weight: bolder;
-}
-
-.quote .people {
-    font-size: 20px;
-    font-weight: lighter;
-}
-/* About self section */
-.content{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    margin: 50px 25vh;
-    border-radius: 30px;
-    padding: 50px;
-    gap: 50px;
-    background-color: #dcdbdb;
-    font-style: italic;
-    font-weight: bolder;
-    line-height: 2;
-}
-/* Blog promotion banner */
-.banner {
+header nav {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin: 50px 25vh;
-    background-color: #128cb5dc;
-    border: 5px #128cb5dc;
-    border-radius: 20px;
-    padding: 40px;
-    gap: 50px;
+    flex-wrap: wrap;
 }
 
-.banner button {
-    border: 3px #1a76ffdc;
-    background-color: #1a76ffdc;
-    border-radius: 10px;
-    padding: 10px 30px;
+nav ul {
+    flex: 0 1 auto;
     text-align: center;
-    color: white;
-    white-space: nowrap;
+    margin: 1em;
+    padding: 5px;
+    list-style-type: none;
+    border-radius: 10%;
 }
 
-.banner button:hover {
-    background-color: #1ac6ff;
+nav a {
+    text-decoration: none;
 }
-/* Bottom copyright info */
-.bottom {
+
+nav ul li {
+    text-decoration: dotted;
+    padding: 5px;
+}
+
+#info {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: #0e5068e0;
+}
+
+#info h1 {
+    margin-left: 1rem;
+}
+
+#info img {
+    flex: 0 0 auto;
+    border: 3px solid #8339b8;
+    border-radius: 5%;
+}
+
+#avatar img,
+#avatar p {
+    flex: 1 1 auto;
     margin: 0px;
-    padding: 30px;
-    flex: 1 0 10vh;
+    text-align: center;
+}
+
+nav ul li {
+    display: inline;
+}
+#about{
+    padding: 5px;
+}
+
+blockquote {
+    margin: 0;
+}
+.fadeout{
+    color: rgba(240, 248, 255, 0.368);
+}
+
+blockquote ul {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+blockquote ul li {
+    padding: 0.5em 0.2em;
+    text-decoration: dotted;
+    font-style: italic;
+}
+
+footer {
+    margin: 0;
+    text-align: center;
+}
+
+@media screen and (min-width: 500px) {
+
+    #about,
+    header {
+        margin: 0 5%;
+    }
+}
+
+@media screen and (min-width: 768px) {
+
+    #about,
+    header {
+        margin: 0 25%;
+    }
 }

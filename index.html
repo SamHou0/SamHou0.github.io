@@ -3,48 +3,71 @@
 
 <head>
     <meta charset="utf-8">
-    <title>SamHou's Site</title>
+    <title>SamHou's Tiny Site</title>
     <link href="style.css" rel="stylesheet">
-    <link href="./img/SamHou.png" rel="icon" type="image/png">
-    <meta name="fediverse:creator" content="samhou@clanna.dev" />
+    <link href="img/SamHou.png" rel="icon" type="image/png">
+    <link rel="stylesheet" href="style.css">
+    <meta name="fediverse:creator" content="samhou@clanna.dev">
+    <meta name="description" content="SamHou 的个人主站点，介绍了作为技术爱好者的追求，ACGN 的爱好，以及本网域下的各种站点和服务。">
 </head>
 
 <body>
-    <div class="header">
-        <div class="namebox">
-            <img src="./img/SamHou.png" width="50px" alt="SamHou's Avatar">
-            <div class="main-text">SamHou</div>
-        </div>
-        <ul class="nav">
-            <li><a class="sub-text" href="https://blog.samhou.moe">Blog</a></li>
-            <li><a class="sub-text" href="https://clanna.dev/@samhou">Social</a></li>
-        </ul>
-    </div>
-    <div class="quote main-text">
-        <p class="words">Sleep for a better life.</p>
-        <p class="people">-- SamHou</p>
-    </div>
-    <div class="content main-text-reverse">
-        <div>关于我</div>
-        <div>“只是一个喜欢技术的学生罢了。技术之外，对 ACGN 也很有兴趣……那些美好，虽不是我们的亲身经历，却是我们人生中无可替代的宝物。”</div>
-        <div class="namebox">
-            <div>现在最喜欢的是和泉つばす老师的角色空门苍！</div>
-            <div class="text-img">
-                <img src="./img/ao.webp" alt="Ao's Avatar" width="100px">
-                <div class="sub-text">(Illust by Izumi Tsubasu) </div>
+    <header>
+        <nav>
+            <div id="info">
+                <img src="img/SamHou.png" alt="SamHou's avatar">
+                <h1>Tiny Site</h1>
             </div>
-        </div>
+            <ul>
+                <li><a href="https://blog.samhou.moe/" target="_blank">BLOG</a></li>
+                <li><a href="https://clanna.dev/@samhou" target="_blank">FEDIVERSE</a></li>
+                <li><a href="https://status.samhou.moe/" target="_blank">STATUS</a></li>
+                <li><a href="https://code.samhou.moe/" target="_blank">LEARN</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section id="about">
+        <h2>关于我</h2>
+        <p>技术爱好者，也喜欢玩点 Gal，看点番。</p>
+        <h2>博客</h2>
+        <p>我有一个<a href="https://blog.samhou.moe/" target="_blank">博客</a>，会在这里折腾各种好玩东西，来看看吧！</p>
+        <h2>技术</h2>
+        <p>
+            还在学习中！无论是编程，还是建站、域名、加密技术、开源软件、软路由、家里云、VPS、运维，只要和广义的计算机有关的都喜欢！<em>这其实是无止境的。</em><br>对于编程来说，到现在为止我个人比较喜欢：
+        </p>
+        <ul>
+            <li>C# 的美感</li>
+            <li>Go 的高效</li>
+        </ul>
+        <p>
+            总之如果你想要和我探讨这些话题，随时欢迎！
+        </p>
+        <h2>ACGN</h2>
+        <p>
+            最喜欢后宫 END（<del>无论是后宫还是逆后宫</del>）。当然，什么番都吃一点，并且每部看过的动画/游戏/漫画/轻小说，都会稍微写个小作文评价下。
+        </p>
+        <p>想知道最近的动态？可以去 Fediverse 关注我，或者直接前往 <a href="https://bgm.tv/user/samhou" target="_blank">Bangumi</a> 一探究竟……
+        </p>
+        <h2 class="fadeout"><ruby>沃·兹基硕德<rp>（</rp>
+                <rt>我 自 己 说 的</rt>
+                <rp>）</rp>
+            </ruby>的<em>名言</em></h2>
+        <blockquote class="fadeout">
+            <ul>
+                <li>Sleep for a better life.</li>
+                <li>Talk is NOT "cheap".</li>
+                <li>纯爱应该是每个人的底线。</li>
+                <li>GalGame 是净化第一眼的邪念，<br>传递角色真正魅力的地方。</li>
 
-    </div>
-    <div class="banner main-text">
-        <div>为什么不来博客看看呢？或许有你想看的文章哦！</div>
-        <a href="https://blog.samhou.moe">
-            <button class="sub-text">去看看<br>ヾ(≧▽≦*)o</button>
-        </a>
-    </div>
-    <div class="bottom sub-text">
-        Copyright © 2019-present Sam Hou. All rights reserved.
-    </div>
+            </ul>
+        </blockquote>
+    </section>
+    <footer>
+        <p>
+            Copyright &copy; 2019 - now SamHou<br>
+            <del>这小破站炸了我都夸它响</del>
+        </p>
+    </footer>
 </body>
 
 </html>
